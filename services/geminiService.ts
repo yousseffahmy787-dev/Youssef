@@ -1,24 +1,24 @@
+
 import { GoogleGenAI, Type } from "@google/genai";
 
-const ai = new GoogleGenAI({
-  apiKey: import.meta.env.VITE_GEMINI_API_KEY
-});
+const getAiClient = () => {
+  // استخدام التعيين المباشر من process.env الذي يوفره Vite
+  const apiKey = process.env.API_KEY;
+  if (!apiKey) {
+    console.warn("Gemini API Key is missing. AI features will be disabled.");
+    return null;
+  }
+  return new GoogleGenAI({ apiKey });
+};
 
 export async function parseOrderText(text: string) {
+  const ai = getAiClient();
+  if (!ai) return null;
+
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
-      contents: [
-        {
-          role: "user",
-          parts: [
-            {
-              text: `Parse the following Arabic/Egyptian customer order text into structured JSON data.
-              Text: "${text}"`
-            }
-          ]
-        }
-      ],
+      model: 'gemini-3-flash-preview',
+      contents: [{ parts: [{ text: `Parse the following Arabic/Egyptian customer order text into structured JSON data. Text: "${text}"` }] }],
       config: {
         responseMimeType: "application/json",
         responseSchema: {
@@ -31,12 +31,11 @@ export async function parseOrderText(text: string) {
             orderDetails: { type: Type.STRING }
           }
         },
-        systemInstruction:
-          "You are an expert Arabic data extractor. Extract customer name, phone, city, address, and order details from messy text. Normalize city names to standard Egyptian governorates if possible."
-      }
+        systemInstruction: "You are an expert Arabic data extractor. Extract customer name, phone, city, address, and order details from messy text."
+      },
     });
 
-    return JSON.parse(response.response.text());
+    return JSON.parse(response.text || "{}");
   } catch (error) {
     console.error("AI Parsing Error:", error);
     return null;

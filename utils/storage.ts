@@ -13,7 +13,7 @@ const DEFAULT_USERS: User[] = [
     role: 'admin', 
     password: '1234',
     jobTitle: 'المدير العام',
-    permissions: { viewAllOrders: true, manageUsers: true, manageShipping: true, deleteOrders: true } 
+    permissions: { viewAllOrders: true, manageUsers: true, manageShipping: true, deleteOrders: true, viewDashboard: true, createOrders: true, editOrders: true } 
   },
   { 
     id: 'u2',
@@ -22,7 +22,7 @@ const DEFAULT_USERS: User[] = [
     role: 'sales', 
     password: '1234',
     jobTitle: 'مسؤول مبيعات',
-    permissions: { viewAllOrders: false, manageUsers: false, manageShipping: false, deleteOrders: false } 
+    permissions: { viewAllOrders: false, manageUsers: false, manageShipping: false, deleteOrders: false, viewDashboard: true, createOrders: true, editOrders: true } 
   },
   { 
     id: 'u3',
@@ -31,13 +31,26 @@ const DEFAULT_USERS: User[] = [
     role: 'shipper', 
     password: '1234',
     jobTitle: 'مسؤول شحن',
-    permissions: { viewAllOrders: true, manageUsers: false, manageShipping: true, deleteOrders: false } 
+    permissions: { viewAllOrders: true, manageUsers: false, manageShipping: true, deleteOrders: false, viewDashboard: true, createOrders: false, editOrders: false } 
   }
 ];
 
 export const getUsers = (): User[] => {
   const stored = localStorage.getItem(USERS_KEY);
   return stored ? JSON.parse(stored) : DEFAULT_USERS;
+};
+
+export const saveUser = (user: User) => {
+  const users = getUsers();
+  const existingIndex = users.findIndex(u => u.id === user.id || u.username === user.username);
+  if (existingIndex > -1) users[existingIndex] = user;
+  else users.push(user);
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+};
+
+export const deleteUser = (id: string) => {
+  const users = getUsers().filter(u => u.id !== id);
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
 };
 
 export const getOrders = (): Order[] => {
