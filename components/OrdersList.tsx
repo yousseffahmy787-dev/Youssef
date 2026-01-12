@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Order, ShippingStatus, UserPermissions, Role } from '../types';
 import { deleteOrder } from '../utils/storage';
 import { SHIPPING_STATUSES } from '../constants';
-import { Search, Edit2, Trash2, MapPin, Printer, ShoppingCart, Truck, Clock, ShieldCheck, User } from 'lucide-react';
+import { Search, Edit2, Trash2, MapPin, Printer, ShoppingCart, Truck, Clock, ShieldCheck, User, Globe } from 'lucide-react';
 
 interface OrdersListProps {
   orders: Order[];
@@ -14,7 +14,7 @@ interface OrdersListProps {
   userPermissions: UserPermissions;
 }
 
-const OrdersList: React.FC<OrdersListProps> = ({ orders, onEdit, onRefresh, canDelete, userPermissions }) => {
+const OrdersList: React.FC<OrdersListProps> = ({ orders, onEdit, onRefresh, canDelete }) => {
   const [search, setSearch] = useState('');
   const [shippingFilter, setShippingFilter] = useState<string>('all');
   const [salesFilter, setSalesFilter] = useState('all');
@@ -84,10 +84,10 @@ const OrdersList: React.FC<OrdersListProps> = ({ orders, onEdit, onRefresh, canD
     <div className="space-y-8 animate-in fade-in duration-500 pb-20 text-right" dir="rtl">
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h2 className="text-4xl font-black text-emerald-950">سجل العمليات</h2>
+          <h2 className="text-4xl font-black text-emerald-950">سجل العمليات العام</h2>
           <p className="text-slate-500 font-bold mt-2 flex items-center gap-2">
-            {!userPermissions.viewAllOrders && <ShieldCheck size={16} className="text-emerald-600" />}
-            {!userPermissions.viewAllOrders ? 'تستعرض الآن طلباتك الخاصة فقط' : 'مراقبة الشحن والمبيعات والتحصيل لكافة المندوبين'}
+            <Globe size={16} className="text-emerald-600" />
+            النظام يعمل ببيئة مشاركة - كافة الطلبات معروضة للجميع لسهولة التنسيق
           </p>
         </div>
 
@@ -119,19 +119,17 @@ const OrdersList: React.FC<OrdersListProps> = ({ orders, onEdit, onRefresh, canD
           ))}
         </div>
 
-        {userPermissions.viewAllOrders && (
-           <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
-             <User size={16} className="text-slate-400" />
-             <select 
-               value={salesFilter}
-               onChange={(e) => setSalesFilter(e.target.value)}
-               className="bg-transparent text-sm font-black text-emerald-900 outline-none"
-             >
-               <option value="all">جميع المندوبين</option>
-               {uniqueSales.map(s => <option key={s} value={s}>{s}</option>)}
-             </select>
-           </div>
-        )}
+        <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-100">
+          <User size={16} className="text-slate-400" />
+          <select 
+            value={salesFilter}
+            onChange={(e) => setSalesFilter(e.target.value)}
+            className="bg-transparent text-sm font-black text-emerald-900 outline-none"
+          >
+            <option value="all">جميع المندوبين</option>
+            {uniqueSales.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
       </div>
 
       {filteredOrders.length > 0 ? (
@@ -167,12 +165,10 @@ const OrdersList: React.FC<OrdersListProps> = ({ orders, onEdit, onRefresh, canD
                         </span>
                       )}
                     </div>
-                    {userPermissions.viewAllOrders && (
-                      <div className="flex items-center gap-3 border-t border-slate-50 pt-3 mt-3">
-                        <User size={14} className="text-slate-300" />
-                        <span className="text-[10px] text-emerald-600 font-black">المندوب: {order.salesUsername}</span>
-                      </div>
-                    )}
+                    <div className="flex items-center gap-3 border-t border-slate-50 pt-3 mt-3">
+                      <User size={14} className="text-slate-300" />
+                      <span className="text-[10px] text-emerald-600 font-black">المسؤول: {order.salesUsername}</span>
+                    </div>
                   </div>
                 </div>
 
@@ -202,7 +198,7 @@ const OrdersList: React.FC<OrdersListProps> = ({ orders, onEdit, onRefresh, canD
         <div className="bg-white p-20 rounded-[3rem] text-center border-2 border-dashed border-slate-100">
            <ShoppingCart size={48} className="text-slate-200 mx-auto mb-4" />
            <h3 className="text-xl font-black text-slate-400">لا يوجد طلبات مسجلة حالياً</h3>
-           <p className="text-slate-300 font-bold mt-2">ابدأ بتسجيل طلب جديد ليظهر هنا</p>
+           <p className="text-slate-300 font-bold mt-2">ابدأ بتسجيل طلب جديد ليظهر هنا للجميع</p>
         </div>
       )}
     </div>
